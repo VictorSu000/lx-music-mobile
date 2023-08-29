@@ -4,7 +4,7 @@
   "versionCode": 60,
   "private": true,
   "scripts": {
-    "dev": "react-native run-android --active-arch-only",
+    "dev": "npx react-native start",
     "ios": "react-native run-ios",
     "start": "react-native start",
     "sc": "react-native start --reset-cache",
