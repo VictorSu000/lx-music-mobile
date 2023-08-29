@@ -55,6 +55,7 @@
   "list_error": "Loading failed😥, click to try to reload",
   "list_export": "Export",
   "list_export_part_desc": "Choose where to save the list file",
+  "list_shuffle": "Shuffle list",
   "list_import": "Import",
   "list_import_part_button_cancel": "No",
   "list_import_part_button_confirm": "Overwrite",

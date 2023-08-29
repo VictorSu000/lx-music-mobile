@@ -16,6 +16,7 @@ import {
   listMusicUpdatePosition,
   listMusicClear,
   allMusicList,
+  shuffleListMusics
 } from '@/utils/listManage'
 import { LIST_IDS } from '@/config/constant'
 import { setActiveList, setUserList } from '@/core/list'
@@ -142,6 +143,11 @@ export class ListEvent extends Event {
     const changedIds = await listMusicOverwrite(listId, musicInfos)
     await checkUpdateList(changedIds)
     this.emit('list_music_overwrite', listId, musicInfos, isRemote)
+  }
+
+  async list_music_shuffle(listId: string) {
+    const changedIds = await shuffleListMusics(listId)
+    await checkUpdateList(changedIds)
   }
 
   /**

@@ -212,6 +212,26 @@ export const getListMusics = async(listId: string): Promise<LX.Music.MusicInfo[]
   return setMusicList(listId, list)
 }
 
+function shuffleList(array: any) {
+    let m = array.length,
+        t, i;
+    while (m) {
+        i = Math.floor(Math.random() * m--);
+        t = array[m];
+        array[m] = array[i];
+        array[i] = t;
+    }
+}
+
+
+export const shuffleListMusics = async(listId: string): Promise<string[]> => {
+  let list = getListMusicSync(listId)
+  if (!list) return []
+  shuffleList(list)
+  setMusicList(listId, list)
+  return [listId]
+}
+
 export const listMusicOverwrite = async(listId: string, musicInfos: LX.Music.MusicInfo[]): Promise<string[]> => {
   setMusicList(listId, musicInfos)
   return [listId]

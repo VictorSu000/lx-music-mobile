@@ -3,6 +3,7 @@ import { useI18n } from '@/lang'
 import Menu, { type Menus, type MenuType, type Position } from '@/components/common/Menu'
 import { LIST_IDS } from '@/config/constant'
 import musicSdk from '@/utils/musicSdk'
+import { shuffleListMusics } from '@/core/list'
 
 export interface SelectInfo {
   listInfo: LX.List.MyListInfo
@@ -77,7 +78,7 @@ export default forwardRef<ListMenuType, ListMenuProps>(({
       { action: 'sync', disabled: !sync, label: t('list_sync') },
       { action: 'import', label: t('list_import') },
       { action: 'export', label: t('list_export') },
-      // { action: 'local_file', label: t('list_select_local_file') },
+      { action: 'shuffle', label: t('list_shuffle') },
       // { action: 'changePosition', label: t('change_position') },
       { action: 'remove', disabled: !remove, label: t('list_remove') },
     ])
@@ -101,9 +102,12 @@ export default forwardRef<ListMenuType, ListMenuProps>(({
         // case 'changePosition':
 
         //   break
-        // case 'local_file':
-
-      //   break
+      case 'shuffle':
+        shuffleListMusics(selectInfo.listInfo.id);
+        
+        break
+      
+        //   break
       case 'remove':
         onRemove(selectInfo.listInfo as LX.List.UserListInfo)
         break

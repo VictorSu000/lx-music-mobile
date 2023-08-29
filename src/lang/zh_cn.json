@@ -55,6 +55,7 @@
   "list_error": "加载失败😥，点击尝试重新加载",
   "list_export": "导出",
   "list_export_part_desc": "选择列表文件保存位置",
+  "list_shuffle": "打乱顺序",
   "list_import": "导入",
   "list_import_part_button_cancel": "不要啊",
   "list_import_part_button_confirm": "覆盖掉",

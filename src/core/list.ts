@@ -85,6 +85,11 @@ export const overwriteListMusics = async(listId: string, musicInfos: LX.Music.Mu
   await global.list_event.list_music_overwrite(listId, musicInfos)
 }
 
+export const shuffleListMusics = async(listId: string) => {
+  await global.list_event.list_music_shuffle(listId)
+}
+
+
 /**
  * 覆盖列表内的歌曲
  */
