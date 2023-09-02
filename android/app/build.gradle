@@ -108,7 +108,7 @@ android {
 
     namespace "cn.toside.music.mobile"
     defaultConfig {
-        applicationId "cn.toside.music.mobile"
+        applicationId "com.kugou.android.auto"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode verCode
