@@ -1,12 +1,15 @@
 package cn.toside.music.mobile;
 
+import android.app.AppOpsManager;
 import android.app.Instrumentation;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.KeyEvent;
 
@@ -47,7 +50,12 @@ public class MainActivity extends NavigationActivity {
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    // 注意这里需要手动给一下查看使用情况的权限
+    // 注意这里需要给一下查看使用情况的权限
+    if (!hasPermission()) {
+      Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
+      startActivity(intent);
+    }
+
     UsageStatsManager mUsageStatsManager = (UsageStatsManager) getSystemService(Context.USAGE_STATS_SERVICE);
     long time = System.currentTimeMillis();
     List<UsageStats> stats ;
@@ -74,6 +82,12 @@ public class MainActivity extends NavigationActivity {
         MainActivity.startFromLauncher = topPackageName.equals(launcher);
       }
     }
+  }
+
+  private boolean hasPermission() {
+    AppOpsManager appOps = (AppOpsManager) getSystemService(Context.APP_OPS_SERVICE);
+    int mode = appOps.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, android.os.Process.myUid(), getPackageName());
+    return mode == AppOpsManager.MODE_ALLOWED;
   }
 
   private String getLauncherPackageName() {
