@@ -245,3 +245,6 @@ export const onPositionChange = (callback: (position: { x: number, y: number }) 
   }
 }
 
+export const getIsStartFromLauncher = async(): Promise<boolean> => {
+  return LyricModule.getIsStartFromLauncher()
+}

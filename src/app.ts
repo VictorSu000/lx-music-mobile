@@ -5,6 +5,8 @@ import { init as initNavigation, navigations } from '@/navigation'
 import { getFontSize } from '@/utils/data'
 import { Alert } from 'react-native'
 import { exitApp } from './utils/nativeModules/utils'
+import { exitApp as backHome } from '@/utils/tools'
+import { getIsStartFromLauncher } from './utils/nativeModules/lyricDesktop'
 
 console.log('starting app...')
 let isInited = false
@@ -31,6 +33,11 @@ const handleInit = async() => {
     return
   }
   isInited = true
+
+  if (!await getIsStartFromLauncher()) {
+    // 如果不是从桌面启动，启动后就隐藏窗口
+    backHome()
+  }
 }
 
 initNavigation(async() => {

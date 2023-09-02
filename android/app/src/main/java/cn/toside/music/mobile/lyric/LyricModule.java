@@ -13,6 +13,8 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 
+import cn.toside.music.mobile.MainActivity;
+
 public class LyricModule extends ReactContextBaseJavaModule {
   private final ReactApplicationContext reactContext;
   Lyric lyric;
@@ -196,6 +198,13 @@ public class LyricModule extends ReactContextBaseJavaModule {
       reactContext.startActivityForResult(intent, 1, null);
     }
     promise.resolve(null);
+  }
+
+  @ReactMethod
+  public void getIsStartFromLauncher(Promise promise) {
+    // 通过RN - 原生模块将startFromLauncher参数传出去。不想自己重新建一个模块了，临时用一下歌词模块
+    Log.d("GetTopPackage", "startFromLauncher: " + MainActivity.startFromLauncher);
+    promise.resolve(MainActivity.startFromLauncher);
   }
 
 }
