@@ -50,11 +50,11 @@ public class MainActivity extends NavigationActivity {
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    // 注意这里需要给一下查看使用情况的权限
-    if (!hasPermission()) {
-      Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
-      startActivity(intent);
-    }
+
+    // TODO 注意这里需要先手动给一下查看使用情况的权限。比亚迪车机上不让自动打开获取权限的窗口，需要通过adb获取
+    // adb shell appops set cn.toside.music.mobile android:get_usage_stats allow
+    // 不行的话试试 adb shell pm grant cn.toside.music.mobile android.permission.PACKAGE_USAGE_STATS
+    // 再不行的话就放弃吧，不加权限查不到数据，默认不是从桌面打开，也就是首次点开app必定会隐藏界面，需要再点一次
 
     UsageStatsManager mUsageStatsManager = (UsageStatsManager) getSystemService(Context.USAGE_STATS_SERVICE);
     long time = System.currentTimeMillis();
@@ -82,12 +82,6 @@ public class MainActivity extends NavigationActivity {
         MainActivity.startFromLauncher = topPackageName.equals(launcher);
       }
     }
-  }
-
-  private boolean hasPermission() {
-    AppOpsManager appOps = (AppOpsManager) getSystemService(Context.APP_OPS_SERVICE);
-    int mode = appOps.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, android.os.Process.myUid(), getPackageName());
-    return mode == AppOpsManager.MODE_ALLOWED;
   }
 
   private String getLauncherPackageName() {
