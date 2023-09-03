@@ -4,6 +4,7 @@ import { filterMusicList, fixNewMusicInfoQuality, toNewMusicInfo } from '@/utils
 import { log } from '@/utils/log'
 import { confirmDialog, handleReadFile, handleSaveFile, showImportTip, toast } from '@/utils/tools'
 import listState from '@/store/list/state'
+import { webdavTempPath, uploadLxConfigFileWebDAV, downloadLxConfigFileWebDAV, delWebdavTempFile } from './webdav_util'
 
 
 const getAllLists = async() => {
@@ -111,6 +112,11 @@ export const handleImportListPart = async(listData: LX.ConfigFile.MyListInfoPart
 const importPlayList = async(path: string) => {
   let configData: any
   try {
+    if (path === "--") {
+      await delWebdavTempFile()
+      path = webdavTempPath
+      await downloadLxConfigFileWebDAV()
+    }
     configData = await handleReadFile(path)
   } catch (error: any) {
     log.error(error.stack)
@@ -145,6 +151,10 @@ const importPlayList = async(path: string) => {
       return true
     default: showImportTip(configData.type)
   }
+
+  if (path === webdavTempPath) {
+    await delWebdavTempFile()
+  }
 }
 
 export const handleImportList = (path: string) => {
@@ -166,9 +176,19 @@ const exportAllList = async(path: string) => {
   }))
 
   try {
-    await handleSaveFile(path + '/lx_list.lxmc', data)
+    if (path === "--") {
+      path = webdavTempPath
+    } else {
+      path += '/lx_list.lxmc'
+    }
+    await handleSaveFile(path, data)
+    if (path === webdavTempPath) {
+      await uploadLxConfigFileWebDAV()
+      await delWebdavTempFile()
+    }
   } catch (error: any) {
     log.error(error.stack)
+    throw error
   }
 }
 export const handleExportList = (path: string) => {
