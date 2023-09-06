@@ -43,6 +43,7 @@ public class LyricView extends Activity implements View.OnTouchListener {
   private float nowY;
   private float tranX; //悬浮窗移动位置的相对值
   private float tranY;
+  private long lastPressDownTime;
   private float prevViewPercentageX = 0;
   private float prevViewPercentageY = 0;
   private float widthPercentage = 1f;
@@ -116,9 +117,10 @@ public class LyricView extends Activity implements View.OnTouchListener {
       WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN |
       WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS;
 
-    if (isLock) {
-      flag = flag | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
-    }
+    // 任何时候都不要lock歌词，允许触控
+    //    if (isLock) {
+    //      flag = flag | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
+    //    }
 
     return flag;
   }
@@ -206,7 +208,7 @@ public class LyricView extends Activity implements View.OnTouchListener {
 // boolean isLock, String themeColor, float alpha, int lyricViewX, int lyricViewY, String textX, String textY
   public void showLyricView(Bundle options) {
     isLock = options.getBoolean("isLock", isLock);
-    isSingleLine = options.getBoolean("isSingleLine", isSingleLine);
+    isSingleLine = false;
     isShowToggleAnima = options.getBoolean("isShowToggleAnima", isShowToggleAnima);
     unplayColor = options.getString("unplayColor", unplayColor);
     playedColor = options.getString("playedColor", playedColor);
@@ -427,6 +429,8 @@ public class LyricView extends Activity implements View.OnTouchListener {
         lastY = event.getRawY();
 
         preY = lastY;
+
+        lastPressDownTime = System.currentTimeMillis();
         break;
       case MotionEvent.ACTION_MOVE:
         // 获取移动时的X，Y坐标
@@ -480,6 +484,19 @@ public class LyricView extends Activity implements View.OnTouchListener {
           prevViewPercentageX = percentageX / 100f;
           prevViewPercentageY = percentageY / 100f;
           sendPositionEvent(percentageX, percentageY);
+        }
+
+        // 长按是切歌等操作
+        if (System.currentTimeMillis() - lastPressDownTime > 1000) {
+          if (lastX > 0.65 * layoutParams.width) {
+            lyricEvent.sendEvent(lyricEvent.PLAY_NEXT, null);
+          }
+          if (lastX < 0.35 * layoutParams.width) {
+            lyricEvent.sendEvent(lyricEvent.PLAY_PREV, null);
+          }
+          if ((lastX > 0.35 * layoutParams.width) && (lastX < 0.65 * layoutParams.width)) {
+            lyricEvent.sendEvent(lyricEvent.TOGGLE_PAUSE, null);
+          }
         }
         break;
     }
@@ -562,7 +579,7 @@ public class LyricView extends Activity implements View.OnTouchListener {
   }
 
   public void setSingleLine(boolean isSingleLine) {
-    this.isSingleLine = isSingleLine;
+    this.isSingleLine = false;
     if (textView == null) return;
     windowManager.removeView(textView);
     createTextView();

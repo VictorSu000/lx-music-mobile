@@ -10,6 +10,9 @@ import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 public class LyricEvent {
   final String SET_VIEW_POSITION = "set-position";
+  final String TOGGLE_PAUSE = "togglePlay";
+  final String PLAY_PREV = "playPrev";
+  final String PLAY_NEXT = "playNext";
 
   private final ReactApplicationContext reactContext;
   LyricEvent(ReactApplicationContext reactContext) { this.reactContext = reactContext; }
