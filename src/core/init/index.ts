@@ -13,6 +13,10 @@ import { checkUpdate } from '@/core/version'
 import { bootLog } from '@/utils/bootLog'
 import { cheatTip } from '@/utils/tools'
 
+import { NativeModules, NativeEventEmitter } from 'react-native'
+import { playNext, playPrev, togglePlay } from '@/core/player/player'
+const { LyricModule } = NativeModules
+
 let isFirstPush = true
 const handlePushedHomeScreen = async() => {
   await cheatTip()
@@ -54,6 +58,19 @@ export default async() => {
 
   void initSync(setting)
   bootLog('Sync inited.')
+
+  // 监听新增的歌词悬浮窗控制
+  const lyricEventEmitter = new NativeEventEmitter(LyricModule)
+  lyricEventEmitter.addListener('togglePlay', () => {
+    togglePlay()
+  })
+  lyricEventEmitter.addListener('playNext', () => {
+    playNext()
+  })
+  lyricEventEmitter.addListener('playPrev', () => {
+    playPrev()
+  })
+  
 
   // syncSetting()
 

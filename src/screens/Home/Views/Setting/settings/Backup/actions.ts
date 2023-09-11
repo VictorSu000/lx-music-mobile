@@ -5,6 +5,8 @@ import { log } from '@/utils/log'
 import { confirmDialog, handleReadFile, handleSaveFile, showImportTip, toast } from '@/utils/tools'
 import listState from '@/store/list/state'
 import { webdavTempPath, uploadLxConfigFileWebDAV, downloadLxConfigFileWebDAV, delWebdavTempFile } from './webdav_util'
+import { DownloadDirectoryPath } from 'react-native-fs'
+import { PermissionsAndroid } from 'react-native'
 
 
 const getAllLists = async() => {
@@ -116,6 +118,35 @@ const importPlayList = async(path: string) => {
       await delWebdavTempFile()
       path = webdavTempPath
       await downloadLxConfigFileWebDAV()
+
+      // 导入前先备份一下当前数据
+      // 请求权限，将数据保存到download文件夹
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+        {
+          title: '请求权限',
+          message:
+            '将备份文件保存到下载文件夹，必须授予',
+          buttonPositive: '确认',
+        },
+      );
+      if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+        throw "写入存储的权限未授予"
+      }
+      const dateStr = new Date().toLocaleString('zh', {
+        hour12: false,
+        timeZone: 'Asia/Shanghai',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      }).replace(/\/|:|\s/g, '-')
+
+      const backupPath = `${DownloadDirectoryPath}/lx_list_${dateStr}.bak.lxmc`
+      await exportAllList(backupPath)
+      console.log('backup playlist before import from webDAV:', backupPath)
     }
     configData = await handleReadFile(path)
   } catch (error: any) {
@@ -178,7 +209,7 @@ const exportAllList = async(path: string) => {
   try {
     if (path === "--") {
       path = webdavTempPath
-    } else {
+    } else if (!path.endsWith(".bak.lxmc")) {
       path += '/lx_list.lxmc'
     }
     await handleSaveFile(path, data)
