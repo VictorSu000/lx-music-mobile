@@ -42,6 +42,8 @@ import java.util.Objects;
 public class UtilsModule extends ReactContextBaseJavaModule {
   private final ReactApplicationContext reactContext;
 
+  private int listenerCount = 0;
+
   UtilsEvent utilsEvent;
 
   UtilsModule(ReactApplicationContext reactContext) {
@@ -54,6 +56,23 @@ public class UtilsModule extends ReactContextBaseJavaModule {
   @Override
   public String getName() {
     return "UtilsModule";
+  }
+
+  @ReactMethod
+  public void addListener(String eventName) {
+    if (listenerCount == 0) {
+      // Set up any upstream listeners or background tasks as necessary
+    }
+
+    listenerCount += 1;
+  }
+
+  @ReactMethod
+  public void removeListeners(Integer count) {
+    listenerCount -= count;
+    if (listenerCount == 0) {
+      // Remove upstream listeners, stop unnecessary background tasks
+    }
   }
 
   private void registerScreenBroadcastReceiver() {
@@ -255,7 +274,7 @@ public class UtilsModule extends ReactContextBaseJavaModule {
 
   // https://blog.51cto.com/u_15298568/3121162
   @ReactMethod
-  public void openNotificationPermissionActivity() {
+  public void openNotificationPermissionActivity(Promise promise) {
     Intent intent = new Intent();
     String packageName = reactContext.getApplicationContext().getPackageName();
 
@@ -268,7 +287,12 @@ public class UtilsModule extends ReactContextBaseJavaModule {
       intent.putExtra("app_uid", reactContext.getApplicationContext().getApplicationInfo().uid);
     }
     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-    reactContext.startActivity(intent);
+    try {
+      reactContext.startActivity(intent);
+      promise.resolve(true);
+    } catch (Exception ignore) {
+      promise.resolve(false);
+    }
   }
 
   @ReactMethod
@@ -370,6 +394,16 @@ public class UtilsModule extends ReactContextBaseJavaModule {
     params.putInt("width", rect.width());
     params.putInt("height", rect.height());
     promise.resolve(params);
+  }
+
+  @ReactMethod
+  public void isIgnoringBatteryOptimization(Promise promise) {
+    promise.resolve(BatteryOptimizationUtil.isIgnoringBatteryOptimization(reactContext.getApplicationContext(), reactContext.getPackageName()));
+  }
+
+  @ReactMethod
+  public void requestIgnoreBatteryOptimization(Promise promise) {
+    promise.resolve(BatteryOptimizationUtil.requestIgnoreBatteryOptimization(reactContext.getApplicationContext(), reactContext.getPackageName()));
   }
 }
 

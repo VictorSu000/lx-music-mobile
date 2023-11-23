@@ -1,11 +1,11 @@
 import apiSourceInfo from './api-source-info'
 
-import temp_api_kw from './kw/api-temp'
-import test_api_kg from './kg/api-test'
-import test_api_kw from './kw/api-test'
-import test_api_tx from './tx/api-test'
-import test_api_wy from './wy/api-test'
-import test_api_mg from './mg/api-test'
+// import temp_api_kw from './kw/api-temp'
+// import test_api_kg from './kg/api-test'
+// import test_api_kw from './kw/api-test'
+// import test_api_tx from './tx/api-test'
+// import test_api_wy from './wy/api-test'
+// import test_api_mg from './mg/api-test'
 
 import direct_api_kg from './kg/api-direct'
 import direct_api_kw from './kw/api-direct'
@@ -17,13 +17,13 @@ import settingState from '@/store/setting/state'
 
 
 const apiList = {
-  temp_api_kw,
-  // test_api_bd: require('./bd/api-test'),
-  test_api_kg,
-  test_api_kw,
-  test_api_tx,
-  test_api_wy,
-  test_api_mg,
+  // temp_api_kw,
+  // // test_api_bd: require('./bd/api-test'),
+  // test_api_kg,
+  // test_api_kw,
+  // test_api_tx,
+  // test_api_wy,
+  // test_api_mg,
   direct_api_kg,
   direct_api_kw,
   direct_api_tx,
@@ -47,6 +47,7 @@ for (const api of apiSourceInfo) {
 const getAPI = source => apiList[`${settingState.setting['common.apiSource']}_api_${source}`]
 
 const apis = source => {
+  if (/^user_api/.test(settingState.setting['common.apiSource'])) return global.lx.apis[source]
   const api = getAPI(source)
   if (api) return api
   throw new Error('Api is not found')
