@@ -1,0 +1,1 @@
+本文件夹内的app用于打开后即运行lx-music，用于增加语音唤醒lxmusic的功能，仅针对原版的lxmusic
