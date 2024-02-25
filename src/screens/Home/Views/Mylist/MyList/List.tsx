@@ -1,5 +1,5 @@
 import { memo, useEffect, useRef } from 'react'
-import { View, TouchableOpacity, FlatList, InteractionManager, type NativeScrollEvent, type NativeSyntheticEvent, type FlatListProps } from 'react-native'
+import { View, TouchableOpacity, FlatList, type NativeScrollEvent, type NativeSyntheticEvent, type FlatListProps } from 'react-native'
 
 import { Icon } from '@/components/common/Icon'
 
@@ -12,6 +12,7 @@ import { setActiveList } from '@/core/list'
 import Text from '@/components/common/Text'
 import { type Position } from './ListMenu'
 import { scaleSizeH } from '@/utils/pixelRatio'
+import Loading from '@/components/common/Loading'
 
 type FlatListType = FlatListProps<LX.List.MyListInfo>
 
@@ -44,12 +45,13 @@ const ListItem = memo(({ item, index, activeId, onPress, onShowMenu }: {
   }
 
   return (
-    <View style={{ ...styles.listItem, height: ITEM_HEIGHT, opacity: fetching ? 0.5 : 1 }}>
+    <View style={{ ...styles.listItem, height: ITEM_HEIGHT }}>
       {
         active
           ? <Icon style={styles.listActiveIcon} name="chevron-right" size={12} color={theme['c-primary-font']} />
           : null
       }
+      { fetching ? <Loading color={active ? theme['c-primary-font'] : theme['c-font']} style={styles.loading} /> : null }
       <TouchableOpacity style={styles.listName} onPress={handlePress}>
         <Text numberOfLines={1} color={active ? theme['c-primary-font'] : theme['c-font']}>{item.name}</Text>
       </TouchableOpacity>
@@ -78,7 +80,7 @@ export default ({ onShowMenu }: {
   const handleToggleList = (item: LX.List.MyListInfo) => {
     // setVisiblePanel(false)
     global.app_event.changeLoveListVisible(false)
-    void InteractionManager.runAfterInteractions(() => {
+    requestAnimationFrame(() => {
       setActiveList(item.id)
     })
   }
@@ -155,6 +157,9 @@ const styles = createStyle({
     marginLeft: 3,
     // paddingRight: 5,
     textAlign: 'center',
+  },
+  loading: {
+    marginLeft: 5,
   },
   listName: {
     height: '100%',

@@ -137,7 +137,7 @@ const handlePlayMusic = async(musicInfo: LX.Player.PlayMusic, url: string, time:
   await TrackPlayer.skip(queue.findIndex(t => t.id == track.id))
 
   if (currentTrackIndex == null) {
-    if (!isTempTrack(track.id)) {
+    if (!isTempTrack(track.id as string)) {
       if (time) await TrackPlayer.seekTo(time)
       if (global.lx.restorePlayInfo) {
         await TrackPlayer.pause()
@@ -152,7 +152,7 @@ const handlePlayMusic = async(musicInfo: LX.Player.PlayMusic, url: string, time:
     }
   } else {
     await TrackPlayer.pause()
-    if (!isTempTrack(track.id)) {
+    if (!isTempTrack(track.id as string)) {
       await TrackPlayer.seekTo(time)
       await TrackPlayer.play()
     }
@@ -174,7 +174,7 @@ export const playMusic = (musicInfo: LX.Player.PlayMusic, url: string, time: num
 
 // let musicId = null
 // let duration = 0
-// let artwork = null
+let prevArtwork: string | undefined
 const updateMetaInfo = async(mInfo: LX.Player.MusicInfo) => {
   const isShowNotificationImage = settingState.setting['player.isShowNotificationImage']
   // const mInfo = formatMusicInfo(musicInfo)
@@ -190,11 +190,13 @@ const updateMetaInfo = async(mInfo: LX.Player.MusicInfo) => {
   // }
   // console.log('+++++updateMetaInfo+++++', mInfo.name)
   isPlaying = await TrackPlayer.getState() == State.Playing
+  let artwork = isShowNotificationImage ? mInfo.pic ?? prevArtwork : undefined
+  if (mInfo.pic) prevArtwork = mInfo.pic
   await TrackPlayer.updateNowPlayingMetadata({
     title: mInfo.name ?? 'Unknow',
     artist: mInfo.singer ?? 'Unknow',
     album: mInfo.album ?? undefined,
-    artwork: isShowNotificationImage ? mInfo.pic ?? undefined : undefined,
+    artwork,
     duration: prevDuration || 0,
   }, isPlaying)
 }
@@ -228,7 +230,7 @@ const debounceUpdateMetaInfoTools = {
           if (!musicInfo) return
           // isDelayRun = false
           void fn(musicInfo)
-        }, 1500)
+        }, 1000)
       } else {
         isDelayRun = true
         void fn(musicInfo)

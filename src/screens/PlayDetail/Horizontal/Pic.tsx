@@ -1,59 +1,47 @@
-import { memo, useState } from 'react'
-import { View, Image } from 'react-native'
+import { memo, useEffect, useState } from 'react'
+import { View } from 'react-native'
 // import { useLayout } from '@/utils/hooks'
-import { useTheme } from '@/store/theme/hook'
-import { BorderRadius } from '@/theme'
-import Text from '@/components/common/Text'
 import { usePlayerMusicInfo } from '@/store/player/hook'
 import { useWindowSize } from '@/utils/hooks'
 import { useNavigationComponentDidAppear } from '@/navigation'
 import { NAV_SHEAR_NATIVE_IDS } from '@/config/constant'
 import { createStyle } from '@/utils/tools'
-import StatusBar from '@/components/common/StatusBar'
 import { HEADER_HEIGHT } from './components/Header'
 import { BTN_WIDTH } from './MoreBtn/Btn'
 import { marginLeft } from './constant'
+import Image from '@/components/common/Image'
+import { useStatusbarHeight } from '@/store/common/hook'
+import commonState from '@/store/common/state'
 
-const EmptyPic = memo(({ width }: { width: number }) => {
-  const theme = useTheme()
-  const size = width * 0.2
-  return (
-    <View style={{ ...styles.emptyPic, width, height: width, backgroundColor: theme['c-primary-light-900-alpha-200'] }}>
-      <Text size={size} color={theme['c-primary-light-400-alpha-200']}>L</Text>
-      <Text size={size} color={theme['c-primary-light-400-alpha-200']} style={styles.text}>X</Text>
-    </View>
-  )
-})
 
 export default memo(({ componentId }: { componentId: string }) => {
   const musicInfo = usePlayerMusicInfo()
   const { width: winWidth, height: winHeight } = useWindowSize()
+  const statusBarHeight = useStatusbarHeight()
 
-  const [animated, setAnimated] = useState(false)
+  const [animated, setAnimated] = useState(!!commonState.componentIds.playDetail)
+  const [pic, setPic] = useState(musicInfo.pic)
+  useEffect(() => {
+    if (animated) setPic(musicInfo.pic)
+  }, [musicInfo.pic, animated])
 
   useNavigationComponentDidAppear(componentId, () => {
     setAnimated(true)
   })
 
-  let imgWidth = Math.min((winWidth * 0.45 - marginLeft - BTN_WIDTH) * 0.76, (winHeight - StatusBar.currentHeight - HEADER_HEIGHT) * 0.62)
+  let imgWidth = Math.min((winWidth * 0.45 - marginLeft - BTN_WIDTH) * 0.76, (winHeight - statusBarHeight - HEADER_HEIGHT) * 0.62)
   imgWidth -= imgWidth * (global.lx.fontSize - 1) * 0.3
-  let contentHeight = (winHeight - StatusBar.currentHeight - HEADER_HEIGHT) * 0.66
+  let contentHeight = (winHeight - statusBarHeight - HEADER_HEIGHT) * 0.66
   contentHeight -= contentHeight * (global.lx.fontSize - 1) * 0.2
 
   return (
     <View style={{ ...styles.container, height: contentHeight }}>
       <View style={{ ...styles.content, elevation: animated ? 3 : 0 }}>
-        {
-          musicInfo.pic
-            ? (
-                <Image source={{ uri: musicInfo.pic }} nativeID={NAV_SHEAR_NATIVE_IDS.playDetail_pic} progressiveRenderingEnabled={true} borderRadius={2} style={{
-                  ...styles.img,
-                  width: imgWidth,
-                  height: imgWidth,
-                }} />
-              )
-            : <EmptyPic width={imgWidth} />
-        }
+        <Image url={pic} nativeID={NAV_SHEAR_NATIVE_IDS.playDetail_pic} style={{
+          width: imgWidth,
+          height: imgWidth,
+          borderRadius: 2,
+        }} />
       </View>
     </View>
   )
@@ -61,27 +49,16 @@ export default memo(({ componentId }: { componentId: string }) => {
 
 const styles = createStyle({
   container: {
-    flex: 0,
+    flexShrink: 1,
+    flexGrow: 0,
     justifyContent: 'center',
     alignItems: 'center',
     // backgroundColor: 'rgba(0,0,0,0.1)',
+    overflow: 'hidden',
   },
   content: {
     // elevation: 3,
     backgroundColor: 'rgba(0,0,0,0)',
     borderRadius: 4,
-  },
-  img: {
-    borderRadius: 4,
-    // opacity: 0,
-  },
-  emptyPic: {
-    borderRadius: BorderRadius.normal,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  text: {
-    paddingLeft: 2,
   },
 })

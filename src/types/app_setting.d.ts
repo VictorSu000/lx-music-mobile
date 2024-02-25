@@ -47,6 +47,11 @@ declare global {
       'common.drawerLayoutPosition': 'left' | 'right'
 
       /**
+       * 启用首页滑动
+       */
+      'common.homePageScroll': boolean
+
+      /**
        * 是否显示返回按钮
        */
       'common.showBackBtn': boolean
@@ -55,6 +60,11 @@ declare global {
        * 是否显示退出按钮
        */
       'common.showExitBtn': boolean
+
+      /**
+       * 使用系统文件选择器
+       */
+      'common.useSystemFileSelector': boolean
 
       /**
        * 主题id
@@ -75,6 +85,16 @@ declare global {
        * 隐藏黑色主题背景
        */
       'theme.hideBgDark': boolean
+
+      /**
+       * 动态背景
+       */
+      'theme.dynamicBg': boolean
+
+      /**
+       * 字体阴影
+       */
+      'theme.fontShadow': boolean
 
       /**
            * 启动时自动播放歌曲

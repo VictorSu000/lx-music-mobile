@@ -1,7 +1,7 @@
 declare namespace LX {
   namespace UserApi {
     type UserApiSourceInfoType = 'music'
-    type UserApiSourceInfoActions = 'musicUrl'
+    type UserApiSourceInfoActions = 'musicUrl' | 'lyric' | 'pic'
 
     interface UserApiSourceInfo {
       name: string
@@ -19,9 +19,9 @@ declare namespace LX {
       description: string
       // script: string
       allowShowUpdateAlert: boolean
-      author?: string
-      homepage?: string
-      version?: string
+      author: string
+      homepage: string
+      version: string
       sources?: UserApiSources
     }
 

@@ -105,7 +105,7 @@ export const filterMusicList = ({ playedList, listId, list, playerMusicInfo, dis
 /**
  * 过滤列表中已播放的歌曲
  */
-export const filterList = ({ playedList, listId, list, playerMusicInfo, isNext }: {
+export const filterList = async({ playedList, listId, list, playerMusicInfo, isNext }: {
   playedList: LX.Player.PlayMusicInfo[] | readonly LX.Player.PlayMusicInfo[]
   listId: string
   list: Array<LX.Music.MusicInfo | LX.Download.ListItem>

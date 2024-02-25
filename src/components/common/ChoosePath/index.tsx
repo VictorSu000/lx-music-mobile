@@ -5,13 +5,19 @@ import { useState, useRef, forwardRef, useImperativeHandle } from 'react'
 import List, { type ListType } from './List'
 
 import ConfirmAlert, { type ConfirmAlertType } from '@/components/common/ConfirmAlert'
-import { checkStoragePermissions, requestStoragePermission, toast } from '@/utils/tools'
+import { toast, TEMP_FILE_PATH, checkStoragePermissions, requestStoragePermission, confirmDialog } from '@/utils/tools'
 import { useI18n } from '@/lang'
+import { selectFile, unlink } from '@/utils/fs'
+import { useUnmounted } from '@/utils/hooks'
+import settingState from '@/store/setting/state'
+import { log } from '@/utils/log'
+import { updateSetting } from '@/core/common'
 
-interface ReadOptions {
+export interface ReadOptions {
   title: string
+  isPersist?: boolean
   dirOnly?: boolean
-  filter?: RegExp
+  filter?: string[]
 }
 const initReadOptions = {}
 
@@ -31,17 +37,59 @@ export default forwardRef<ChoosePathType, ChoosePathProps>(({
   const confirmAlertRef = useRef<ConfirmAlertType>(null)
   const [deny, setDeny] = useState(false)
   const readOptions = useRef<ReadOptions>(initReadOptions as ReadOptions)
+  const isUnmounted = useUnmounted()
+
+  const handleOpenExternalStorage = async(options: ReadOptions) => {
+    return checkStoragePermissions().then(isGranted => {
+      readOptions.current = options
+      if (isGranted) {
+        listRef.current?.show(options.title, '', options.dirOnly, options.filter)
+      } else {
+        confirmAlertRef.current?.setVisible(true)
+      }
+    })
+  }
 
   useImperativeHandle(ref, () => ({
     show(options) {
-      void checkStoragePermissions().then(isGranted => {
-        readOptions.current = options
-        if (isGranted) {
-          listRef.current?.show(options.title, options.dirOnly, options.filter)
-        } else {
-          confirmAlertRef.current?.setVisible(true)
-        }
-      })
+      if (!settingState.setting['common.useSystemFileSelector'] || options.dirOnly) {
+        // if (options.isPersist) {
+        void handleOpenExternalStorage(options)
+        // } else {
+        //   void selectManagedFolder().then((dir) => {
+        //     if (!dir || isUnmounted.current) return
+        //     listRef.current?.show(options.title, dir.path, options.dirOnly, options.filter)
+        //   })
+        // }
+      } else {
+        void selectFile({
+          extTypes: options.filter,
+          toPath: TEMP_FILE_PATH,
+        }).then((file) => {
+          // console.log(file)
+          if (!file || isUnmounted.current) return
+          if (options.filter && !options.filter.some(ext => file.data.endsWith('.' + ext))) {
+            toast(t('storage_file_no_match'), 'long')
+            void unlink(file.data)
+            return
+          }
+          onConfirm(file.data)
+        }).catch(err => {
+          if (isUnmounted.current) return
+          log.warn('open document failed: ' + err.message)
+          void confirmDialog({
+            message: t('storage_file_no_select_file_failed_tip'),
+            bgClose: false,
+          }).then((confirm) => {
+            if (!confirm) {
+              toast(t('disagree_tip'), 'long')
+              return
+            }
+            updateSetting({ 'common.useSystemFileSelector': false })
+            void handleOpenExternalStorage(options)
+          })
+        })
+      }
     },
   }))
 
@@ -54,7 +102,7 @@ export default forwardRef<ChoosePathType, ChoosePathProps>(({
       // console.log(result)
       setDeny(result == null)
       if (result) {
-        listRef.current?.show(readOptions.current.title, readOptions.current.dirOnly, readOptions.current.filter)
+        listRef.current?.show(readOptions.current.title, '', readOptions.current.dirOnly, readOptions.current.filter)
       } else {
         toast(t('storage_permission_tip_disagree'), 'long')
       }

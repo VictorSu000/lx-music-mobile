@@ -2,14 +2,16 @@ const defaultSetting: LX.AppSetting = {
   version: '2.0',
   'common.isAutoTheme': false,
   'common.langId': null,
-  'common.apiSource': 'empty',
+  'common.apiSource': '',
   'common.sourceNameType': 'alias',
   'common.shareType': 'system',
   'common.isAgreePact': false,
   'common.autoHidePlayBar': true,
   'common.drawerLayoutPosition': 'left',
+  'common.homePageScroll': true,
   'common.showBackBtn': false,
   'common.showExitBtn': true,
+  'common.useSystemFileSelector': true,
 
   'player.startupAutoPlay': false,
   'player.togglePlayMethod': 'listLoop',
@@ -30,9 +32,9 @@ const defaultSetting: LX.AppSetting = {
 
   // 'playDetail.isZoomActiveLrc': false,
   // 'playDetail.isShowLyricProgressSetting': false,
-  'playDetail.style.align': 'center',
-  'playDetail.vertical.style.lrcFontSize': 176,
-  'playDetail.horizontal.style.lrcFontSize': 180,
+  'playDetail.style.align': 'left',
+  'playDetail.vertical.style.lrcFontSize': 210,
+  'playDetail.horizontal.style.lrcFontSize': 220,
   'playDetail.isShowLyricProgressSetting': false,
 
   'desktopLyric.enable': false,
@@ -70,6 +72,8 @@ const defaultSetting: LX.AppSetting = {
   'theme.lightId': 'green',
   'theme.darkId': 'black',
   'theme.hideBgDark': false,
+  'theme.dynamicBg': false,
+  'theme.fontShadow': false,
 }
 
 

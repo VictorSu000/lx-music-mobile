@@ -66,7 +66,10 @@ globalThis.lx_setup = (key, id, name, description, version, author, homepage, ra
     if (timeoutId > 90000000000) throw new Error('max timeout')
     const id = timeoutId++
     callbacks.set(id, {
-      callback,
+      callback(...args) {
+        // eslint-disable-next-line n/no-callback-literal
+        callback(...args)
+      },
       params,
     })
     nativeFuncs.set_timeout(id, parseInt(timeout))
@@ -146,13 +149,14 @@ globalThis.lx_setup = (key, id, name, description, version, author, homepage, ra
   const events = {
     request: null,
   }
-  const allSources = ['kw', 'kg', 'tx', 'wy', 'mg']
+  const allSources = ['kw', 'kg', 'tx', 'wy', 'mg', 'local']
   const supportQualitys = {
     kw: ['128k', '320k', 'flac', 'flac24bit'],
     kg: ['128k', '320k', 'flac', 'flac24bit'],
     tx: ['128k', '320k', 'flac', 'flac24bit'],
     wy: ['128k', '320k', 'flac', 'flac24bit'],
     mg: ['128k', '320k', 'flac', 'flac24bit'],
+    local: [],
   }
   const supportActions = {
     kw: ['musicUrl'],
@@ -161,7 +165,20 @@ globalThis.lx_setup = (key, id, name, description, version, author, homepage, ra
     wy: ['musicUrl'],
     mg: ['musicUrl'],
     xm: ['musicUrl'],
+    local: ['musicUrl', 'lyric', 'pic'],
   }
+
+  const verifyLyricInfo = (info) => {
+    if (typeof info != 'object' || typeof info.lyric != 'string') throw new Error('failed')
+    if (info.lyric.length > 4096) throw new Error('failed')
+    return {
+      lyric: info.lyric,
+      tlyric: (typeof info.tlyric == 'string' && info.tlyric.length < 4096) ? info.tlyric : null,
+      mlyric: typeof info.mlyric == 'string' && info.mlyric.length < 4096 ? info.mlyric : null,
+      lxlyric: typeof info.lxlyric == 'string' && info.lxlyric.length < 4096 ? info.lxlyric : null,
+    }
+  }
+
   const requestQueue = new Map()
   let isInitedApi = false
   let isShowedUpdateAlert = false
@@ -205,6 +222,7 @@ globalThis.lx_setup = (key, id, name, description, version, author, homepage, ra
         let result
         switch (data.action) {
           case 'musicUrl':
+            if (typeof response != 'string' || response.length > 2048 || !/^https?:/.test(response)) throw new Error('failed')
             result = {
               source: data.source,
               action: data.action,
@@ -212,6 +230,21 @@ globalThis.lx_setup = (key, id, name, description, version, author, homepage, ra
                 type: data.info.type,
                 url: response,
               },
+            }
+            break
+          case 'lyric':
+            result = {
+              source: data.source,
+              action: data.action,
+              data: verifyLyricInfo(response),
+            }
+            break
+          case 'pic':
+            if (typeof response != 'string' || response.length > 2048 || !/^https?:/.test(response)) throw new Error('failed')
+            result = {
+              source: data.source,
+              action: data.action,
+              data: response,
             }
             break
         }
@@ -229,18 +262,18 @@ globalThis.lx_setup = (key, id, name, description, version, author, homepage, ra
   const jsCall = (action, data) => {
     // console.log('jsCall', action, data)
     switch (action) {
+      case '__run_error__':
+        if (!isInitedApi) isInitedApi = true
+        return
       case '__set_timeout__':
         handleSetTimeout(data)
-        break
+        return
       case 'request':
         handleRequest(data)
-        break
+        return
       case 'response':
         handleNativeResponse(data)
-        break
-
-      default:
-        break
+        return
     }
     return 'Unknown action: ' + action
   }
@@ -251,7 +284,7 @@ globalThis.lx_setup = (key, id, name, description, version, author, homepage, ra
     writable: false,
     value: (_key, action, data) => {
       if (key != _key) return 'Invalid key'
-      return jsCall(action, JSON.parse(data))
+      return data == null ? jsCall(action) : jsCall(action, JSON.parse(data))
     },
   })
 
@@ -426,7 +459,7 @@ globalThis.lx_setup = (key, id, name, description, version, author, homepage, ra
       //   // data.content_type = 'multipart/form-data'
       //   options.json = false
       // }
-      if (timeout && typeof timeout == 'number') options.timeout = Math.min(options.timeout, 60_000)
+      if (timeout && typeof timeout == 'number' && timeout > 0) options.timeout = Math.min(timeout, 60_000)
 
       let request = sendNativeRequest(url, { method, body, form, formData, ...options }, (err, resp) => {
         if (err) {
@@ -493,19 +526,6 @@ globalThis.lx_setup = (key, id, name, description, version, author, homepage, ra
 
   globalThis.setTimeout = _setTimeout
   globalThis.clearTimeout = _clearTimeout
-  globalThis.window = globalThis
-  globalThis.document = {
-    getElementsByTagName(name) {
-      if (name == 'script') {
-        return [
-          Object.freeze({
-            innerText: globalThis.lx.currentScriptInfo.rawScript,
-          }),
-        ]
-      }
-      return null
-    },
-  }
 
   const freezeObject = (obj) => {
     if (typeof obj != 'object') return
@@ -524,6 +544,9 @@ globalThis.lx_setup = (key, id, name, description, version, author, homepage, ra
   // eslint-disable-next-line no-eval
   globalThis.eval = function() {
     throw new Error('eval is not available')
+  }
+  globalThis.Function = function() {
+    throw new Error('Function is not available')
   }
 
   const excludes = [

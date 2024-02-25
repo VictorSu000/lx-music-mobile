@@ -27,6 +27,8 @@ const syncHostHistoryPrefix = storageDataPrefix.syncHostHistory
 const listPrefix = storageDataPrefix.list
 const dislikeListPrefix = storageDataPrefix.dislikeList
 const userApiPrefix = storageDataPrefix.userApi
+const openStoragePathPrefix = storageDataPrefix.openStoragePath
+const selectedManagedFolderPrefix = storageDataPrefix.selectedManagedFolder
 
 // const defaultListKey = listPrefix + 'default'
 // const loveListKey = listPrefix + 'love'
@@ -195,6 +197,25 @@ export const getIgnoreVersionFailTipTime = async() => {
   return ignoreVersionFailTipTime ?? 0
 }
 
+let openStoragePath: string | null = ''
+export const saveOpenStoragePath = async(path: string) => {
+  if (path) {
+    openStoragePath = path
+    await saveData(openStoragePathPrefix, path)
+  } else {
+    if (!openStoragePath) return
+    openStoragePath = null
+    await removeData(openStoragePathPrefix)
+  }
+}
+// 获取上次打开的存储路径
+export const getOpenStoragePath = async() => {
+  if (openStoragePath === '') {
+    // eslint-disable-next-line require-atomic-updates
+    openStoragePath = await getData<string | null>(openStoragePathPrefix)
+  }
+  return openStoragePath
+}
 
 export const getSearchSetting = async() => {
   // eslint-disable-next-line require-atomic-updates
@@ -409,6 +430,18 @@ export const getPlayInfo = async() => {
   return getData<LX.Player.SavedPlayInfo | null>(playInfoStorageKey)
 }
 
+let selectedManagedFolder: string | null = ''
+export const setSelectedManagedFolder = async(uri: string) => {
+  selectedManagedFolder = uri
+  return saveData(selectedManagedFolderPrefix, uri)
+}
+export const getSelectedManagedFolder = async() => {
+  if (selectedManagedFolder != '') return selectedManagedFolder
+  let uri = await getData<string>(selectedManagedFolderPrefix)
+  if (selectedManagedFolder != uri) selectedManagedFolder = uri
+  return selectedManagedFolder
+}
+
 export const getSyncAuthKey = async(serverId: string) => {
   const keys = await getData<Record<string, LX.Sync.KeyInfo>>(syncAuthKeyPrefix)
   if (!keys) return null
@@ -501,7 +534,7 @@ const matchInfo = (scriptInfo: string) => {
 }
 export const addUserApi = async(script: string): Promise<LX.UserApi.UserApiInfo> => {
   const result = /^\/\*[\S|\s]+?\*\//.exec(script)
-  if (!result) throw new Error('无效的自定义源文件')
+  if (!result) throw new Error(global.i18n.t('user_api_add_failed_tip'))
 
   let scriptInfo = matchInfo(result[0])
 

@@ -35,6 +35,7 @@ import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeArray;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -302,26 +303,6 @@ public class UtilsModule extends ReactContextBaseJavaModule {
     shareIntent.putExtra(Intent.EXTRA_TEXT,text);
     shareIntent.putExtra(Intent.EXTRA_SUBJECT, title);
     Objects.requireNonNull(reactContext.getCurrentActivity()).startActivity(Intent.createChooser(shareIntent, shareTitle));
-  }
-
-  @ReactMethod
-  public void getStringFromFile(String filePath, Promise promise) {
-    TaskRunner taskRunner = new TaskRunner();
-    try {
-      taskRunner.executeAsync(new Utils.ReadStringFromFile(filePath), promise::resolve);
-    } catch (RuntimeException err) {
-      promise.reject("-2", err.getMessage());
-    }
-  }
-
-  @ReactMethod
-  public void writeStringToFile(String filePath, String dataStr, Promise promise) {
-    TaskRunner taskRunner = new TaskRunner();
-    try {
-      taskRunner.executeAsync(new Utils.WriteStringToFile(filePath, dataStr), promise::resolve);
-    } catch (RuntimeException err) {
-      promise.reject("-2", err.getMessage());
-    }
   }
 
   // https://stackoverflow.com/questions/73463341/in-per-app-language-how-to-get-app-locale-in-api-33-if-system-locale-is-diffe

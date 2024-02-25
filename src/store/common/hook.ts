@@ -15,6 +15,19 @@ export const useFontSize = () => {
   return value
 }
 
+export const useStatusbarHeight = () => {
+  const [value, update] = useState(state.statusbarHeight)
+
+  useEffect(() => {
+    global.state_event.on('statusbarHeightUpdated', update)
+    return () => {
+      global.state_event.off('statusbarHeightUpdated', update)
+    }
+  }, [])
+
+  return value
+}
+
 export const useComponentIds = () => {
   const [value, update] = useState(state.componentIds)
 
@@ -77,6 +90,19 @@ export const useNavActiveId = () => {
     global.state_event.on('navActiveIdUpdated', update)
     return () => {
       global.state_event.off('navActiveIdUpdated', update)
+    }
+  }, [])
+
+  return value
+}
+
+export const useBgPic = () => {
+  const [value, update] = useState(state.bgPic)
+
+  useEffect(() => {
+    global.state_event.on('bgPicUpdated', update)
+    return () => {
+      global.state_event.off('bgPicUpdated', update)
     }
   }, [])
 

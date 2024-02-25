@@ -128,7 +128,7 @@ export const setMusicUrl = (musicInfo: LX.Music.MusicInfo | LX.Download.ListItem
     setResource(musicInfo, url, playerState.progress.nowPlayTime)
   }).catch((err: any) => {
     console.log(err)
-    setStatusText(err.message)
+    setStatusText(err.message as string)
     global.app_event.error()
     addDelayNextTimeout()
   }).finally(() => {
@@ -151,7 +151,11 @@ const handleRestorePlay = async(restorePlayInfo: LX.Player.SavedPlayInfo) => {
   const playMusicInfo = playerState.playMusicInfo
 
   void getPicPath({ musicInfo, listId: playMusicInfo.listId }).then((url: string) => {
-    if (musicInfo.id != playMusicInfo.musicInfo?.id) return
+    if (
+      musicInfo.id != playMusicInfo.musicInfo?.id ||
+      playerState.musicInfo.pic == url ||
+      playerState.loadErrorPicUrl == url
+    ) return
     setMusicInfo({ pic: url })
     global.app_event.picUpdated()
   })
@@ -180,7 +184,10 @@ const debouncePlay = debounceBackgroundTimer((musicInfo: LX.Player.PlayMusic) =>
   setMusicUrl(musicInfo)
 
   void getPicPath({ musicInfo, listId: playerState.playMusicInfo.listId }).then((url: string) => {
-    if (musicInfo.id != playerState.playMusicInfo.musicInfo?.id) return
+    if (
+      musicInfo.id != playerState.playMusicInfo.musicInfo?.id ||
+      playerState.musicInfo.pic == url ||
+      playerState.loadErrorPicUrl == url) return
     setMusicInfo({ pic: url })
     global.app_event.picUpdated()
   })
@@ -318,7 +325,7 @@ export const playNext = async(isAutoToggle = false): Promise<void> => {
     }
   }
   // const isCheckFile = findNum > 2 // 针对下载列表，如果超过两次都碰到无效歌曲，则过滤整个列表内的无效歌曲
-  let { filteredList, playerIndex } = filterList({ // 过滤已播放歌曲
+  let { filteredList, playerIndex } = await filterList({ // 过滤已播放歌曲
     listId: currentListId,
     list: currentList,
     playedList,
@@ -412,7 +419,7 @@ export const playPrev = async(isAutoToggle = false): Promise<void> => {
   }
 
   // const isCheckFile = findNum > 2
-  let { filteredList, playerIndex } = filterList({ // 过滤已播放歌曲
+  let { filteredList, playerIndex } = await filterList({ // 过滤已播放歌曲
     listId: currentListId,
     list: currentList,
     playedList,

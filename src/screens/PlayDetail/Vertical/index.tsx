@@ -1,5 +1,5 @@
 import { memo, useState, useRef, useMemo, useEffect } from 'react'
-import { View, StyleSheet, AppState } from 'react-native'
+import { View, AppState } from 'react-native'
 
 import Header from './components/Header'
 // import Aside from './components/Aside'
@@ -9,8 +9,9 @@ import PagerView, { type PagerViewOnPageSelectedEvent } from 'react-native-pager
 import Pic from './Pic'
 import Lyric from './Lyric'
 import { screenkeepAwake, screenUnkeepAwake } from '@/utils/nativeModules/utils'
-import { NAV_SHEAR_NATIVE_IDS } from '@/config/constant'
 import commonState, { type InitState as CommonState } from '@/store/common/state'
+import { createStyle } from '@/utils/tools'
+// import { useTheme } from '@/store/theme/hook'
 
 const LyricPage = ({ activeIndex }: { activeIndex: number }) => {
   const initedRef = useRef(false)
@@ -72,7 +73,7 @@ export default memo(({ componentId }: { componentId: string }) => {
   return (
     <>
       <Header />
-      <View style={{ flex: 1, flexDirection: 'column' }}>
+      <View style={styles.container}>
         <PagerView
           onPageSelected={onPageSelected}
           // onPageScrollStateChanged={onPageScrollStateChanged}
@@ -86,43 +87,35 @@ export default memo(({ componentId }: { componentId: string }) => {
           </View>
         </PagerView>
         {/* <View style={styles.pageIndicator} nativeID={NAV_SHEAR_NATIVE_IDS.playDetail_pageIndicator}>
-          <View style={{ ...styles.pageIndicatorItem, backgroundColor: pageIndex == 0 ? theme.secondary20 : theme.normal60 }}></View>
-          <View style={{ ...styles.pageIndicatorItem, backgroundColor: pageIndex == 1 ? theme.secondary20 : theme.normal60 }}></View>
+          <View style={{ ...styles.pageIndicatorItem, backgroundColor: pageIndex == 0 ? theme['c-primary-light-100-alpha-700'] : theme['c-primary-alpha-900'] }}></View>
+          <View style={{ ...styles.pageIndicatorItem, backgroundColor: pageIndex == 1 ? theme['c-primary-light-100-alpha-700'] : theme['c-primary-alpha-900'] }}></View>
         </View> */}
-        <View style={{ flex: 0, height: `${36 * global.lx.fontSize}%` }} nativeID={NAV_SHEAR_NATIVE_IDS.playDetail_player}>
-          <Player />
-        </View>
+        <Player />
       </View>
     </>
   )
 })
 
-const styles = StyleSheet.create({
+const styles = createStyle({
   container: {
-    flexGrow: 1,
-    flexShrink: 1,
-    backgroundColor: '#fff',
+    flex: 1,
+    flexDirection: 'column',
   },
   pagerView: {
     flex: 1,
   },
-  pageIndicator: {
-    flex: 0,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    paddingTop: 10,
-    // backgroundColor: 'rgba(0,0,0,0.1)',
-  },
-  pageIndicatorItem: {
-    height: 3,
-    width: '5%',
-    marginLeft: 2,
-    marginRight: 2,
-    borderRadius: 2,
-  },
-  // player: {
+  // pageIndicator: {
   //   flex: 0,
-  //   height: '36%',
+  //   flexDirection: 'row',
+  //   justifyContent: 'center',
+  //   paddingTop: 10,
   //   // backgroundColor: 'rgba(0,0,0,0.1)',
+  // },
+  // pageIndicatorItem: {
+  //   height: 3,
+  //   width: '5%',
+  //   marginLeft: 2,
+  //   marginRight: 2,
+  //   borderRadius: 2,
   // },
 })

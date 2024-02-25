@@ -21,7 +21,7 @@ export default ({ isHome }: { isHome: boolean }) => {
     // console.log('')
     // console.log(playMusicInfo)
     if (!musicInfo.id) return
-    navigations.pushPlayDetailScreen(commonState.componentIds.home as string)
+    navigations.pushPlayDetailScreen(commonState.componentIds.home!)
     // toast(global.i18n.t('play_detail_todo_tip'), 'long')
   }
 
@@ -32,7 +32,11 @@ export default ({ isHome }: { isHome: boolean }) => {
   }
   // console.log('render title')
 
-  const title = musicInfo.id ? downloadFileName.replace('歌手', musicInfo.singer).replace('歌名', musicInfo.name) : ''
+  const title = musicInfo.id
+    ? musicInfo.singer
+      ? downloadFileName.replace('歌手', musicInfo.singer).replace('歌名', musicInfo.name)
+      : musicInfo.name
+    : ''
   // console.log(playMusicInfo)
   return (
     <TouchableOpacity style={styles.container} onLongPress={handleLongPress} onPress={handlePress} activeOpacity={0.7} >
@@ -65,6 +69,8 @@ const styles = createStyle({
   container: {
     width: '100%',
     paddingHorizontal: 2,
-    paddingBottom: 4,
+    // paddingBottom: 4,
+    // height: '50%',
+    // backgroundColor: 'rgba(0, 0, 0, .1)',
   },
 })

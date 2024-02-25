@@ -28,12 +28,20 @@ export class StateEvent extends Event {
     this.emit('fontSizeUpdated', size)
   }
 
+  statusbarHeightUpdated(size: number) {
+    this.emit('statusbarHeightUpdated', size)
+  }
+
   apiSourceUpdated(source: LX.AppSetting['common.apiSource']) {
     this.emit('apiSourceUpdated', source)
   }
 
   themeUpdated(theme: LX.ActiveTheme) {
     this.emit('themeUpdated', theme)
+  }
+
+  bgPicUpdated(bgPic: string | null) {
+    this.emit('bgPicUpdated', bgPic)
   }
 
   playerMusicInfoChanged(musicInfo: PlayerState['musicInfo']) {
