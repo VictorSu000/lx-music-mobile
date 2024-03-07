@@ -10,11 +10,11 @@ const password = ""
 export const webdavTempPath = `${temporaryDirectoryPath}/lx_list_tmp_webdav.lxmc`
 
 
-export const uploadLxConfigFileWebDAV = async() => {
+export const uploadLxConfigFileWebDAV = async () => {
     const link = webdavFileURL
     const res = await RNFetchBlob.config({
         path: webdavTempPath,
-    }).fetch("put", link,  {
+    }).fetch("put", link, {
         "Authorization": `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`,
         "Content-Type": "application/octet-stream",
     }, RNFetchBlob.wrap(webdavTempPath))
@@ -23,12 +23,12 @@ export const uploadLxConfigFileWebDAV = async() => {
         throw `upload statusCode ${res.info().status}`
     }
 }
-  
-export const downloadLxConfigFileWebDAV = async() => {
+
+export const downloadLxConfigFileWebDAV = async () => {
     let link = webdavFileURL
     const res = await RNFetchBlob.config({
         path: webdavTempPath,
-    }).fetch("get", link,  {
+    }).fetch("get", link, {
         Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`,
     })
     if (res.info().status !== 200) {
@@ -37,7 +37,7 @@ export const downloadLxConfigFileWebDAV = async() => {
     }
 }
 
-export const delWebdavTempFile = async() => {
+export const delWebdavTempFile = async () => {
     if (await RNFS.exists(webdavTempPath)) {
         await RNFS.unlink(webdavTempPath)
     }
