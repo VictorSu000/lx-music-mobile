@@ -87,7 +87,7 @@ export default () => {
   const handleScrollToInfo = useCallback((info: LX.Music.MusicInfo) => {
     listRef.current?.scrollToInfo(info)
     handleExitSearch()
-  }, [])
+  }, [handleExitSearch])
   const onLayout = useCallback((e: LayoutChangeEvent) => {
     layoutHeightRef.current = e.nativeEvent.layout.height
   }, [])
@@ -145,8 +145,8 @@ export default () => {
           onScrollToInfo={handleScrollToInfo}
         />
       </View>
-      <ListMusicAdd ref={listMusicAddRef} onAdded={() => { hancelExitSelect() }} />
-      <ListMusicMultiAdd ref={listMusicMultiAddRef} onAdded={() => { hancelExitSelect() }} />
+      <ListMusicAdd ref={listMusicAddRef} onAdded={hancelExitSelect} />
+      <ListMusicMultiAdd ref={listMusicMultiAddRef} onAdded={hancelExitSelect} />
       <MusicPositionModal ref={musicPositionModalRef}
         onUpdatePosition={(info, postion) => { handleUpdateMusicPosition(postion, info.listId, info.musicInfo, info.selectedList, hancelExitSelect) }} />
       <ListMenu

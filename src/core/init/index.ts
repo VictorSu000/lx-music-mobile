@@ -59,8 +59,6 @@ export default async() => {
   bootLog('Player inited.')
   await dataInit(setting)
   bootLog('Data inited.')
-  await dataInit(setting)
-  bootLog('Data inited.')
   await initCommonState(setting)
   bootLog('Common State inited.')
 

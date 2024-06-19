@@ -10,18 +10,14 @@ import CheckBoxItem from '../../components/CheckBoxItem'
 
 export default memo(() => {
   const t = useI18n()
-  const val = useSettingValue('common.useSystemFileSelector')
-  const update = (useSystemFileSelector: boolean) => {
-    updateSetting({ 'common.useSystemFileSelector': useSystemFileSelector })
+  const startupPushPlayDetailScreen = useSettingValue('player.startupPushPlayDetailScreen')
+  const setStartupPushPlayDetailScreen = (startupPushPlayDetailScreen: boolean) => {
+    updateSetting({ 'player.startupPushPlayDetailScreen': startupPushPlayDetailScreen })
   }
 
   return (
     <View style={styles.content}>
-      <CheckBoxItem
-      check={val}
-      label={t('setting_basic_use_system_file_selector')}
-      helpDesc={t('setting_basic_use_system_file_selector_tip')}
-      onChange={update} />
+      <CheckBoxItem check={startupPushPlayDetailScreen} label={t('setting_basic_startup_push_play_detail_screen')} onChange={setStartupPushPlayDetailScreen} />
     </View>
   )
 })
