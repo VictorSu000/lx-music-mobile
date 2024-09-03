@@ -1,6 +1,4 @@
-我们发布了关于 LX Music 项目发展调整与新项目计划的说明，
-详情看： https://github.com/lyswhut/lx-music-desktop/issues/1912
+### 新增
 
-### 修复
-
-- 修复数据存储管理在移除数据时可能出现移除失败的问题
+- 新增 我的列表-歌曲右击菜单-歌曲换源 功能，换源后下次再播放该列表的该歌曲时将优先尝试播放所选源的歌曲，该功能允许你手动指定来源以解决自动换源失败或者换源不准确的问题
+- 新增 Scheme URL 调用支持，调用传参格式与PC端一致，详情看文档说明： https://lyswhut.github.io/lx-music-doc/mobile/scheme-url
