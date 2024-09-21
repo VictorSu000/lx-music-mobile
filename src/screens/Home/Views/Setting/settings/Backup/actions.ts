@@ -9,7 +9,7 @@ import { DownloadDirectoryPath } from 'react-native-fs'
 import { PermissionsAndroid } from 'react-native'
 
 
-const getAllLists = async() => {
+const getAllLists = async () => {
   const lists = []
   lists.push(await getListMusics(listState.defaultList.id).then(musics => ({ ...listState.defaultList, list: musics })))
   lists.push(await getListMusics(listState.loveList.id).then(musics => ({ ...listState.loveList, list: musics })))
@@ -20,7 +20,7 @@ const getAllLists = async() => {
 
   return lists
 }
-const importOldListData = async(lists: any[]) => {
+const importOldListData = async (lists: any[]) => {
   const allLists = await getAllLists()
   for (const list of lists) {
     try {
@@ -46,13 +46,29 @@ const importOldListData = async(lists: any[]) => {
   const loveList = allLists.shift()!.list
   await overwriteListFull({ defaultList, loveList, userList: allLists as LX.List.UserListInfoFull[] })
 }
-const importNewListData = async(lists: Array<LX.List.MyDefaultListInfoFull | LX.List.MyLoveListInfoFull | LX.List.UserListInfoFull>) => {
+const importNewListData = async (lists: Array<LX.List.MyDefaultListInfoFull | LX.List.MyLoveListInfoFull | LX.List.UserListInfoFull>, merge: boolean = false) => {
   const allLists = await getAllLists()
   for (const list of lists) {
     try {
       const targetList = allLists.find(l => l.id == list.id)
       if (targetList) {
-        targetList.list = filterMusicList(list.list).map(m => fixNewMusicInfoQuality(m))
+        const newList = filterMusicList(list.list).map(m => fixNewMusicInfoQuality(m))
+        if (!merge) {
+          // 直接覆盖
+          targetList.list = newList
+        } {
+          // 合并
+          const targetIDSet = new Set(targetList.list.map(x => x.id))
+          const notExisted = newList.filter(x => !targetIDSet.has(x.id))
+          if (notExisted.length > 0 && targetList.id !== 'default' && targetList.id !== 'love') {
+            const confirm = await confirmDialog({
+              message: `“${targetList.name}”有${notExisted.length}首歌将被导入，分别为：${notExisted.map(x => x.name + '-' + x.singer).join('、')}`,
+              cancelButtonText: '不用了',
+              confirmButtonText: '好的',
+            })
+            if (confirm) targetList.list.unshift(...notExisted)
+          }
+        }
       } else {
         const data = {
           name: list.name,
@@ -79,7 +95,7 @@ const importNewListData = async(lists: Array<LX.List.MyDefaultListInfoFull | LX.
  * @param position
  * @returns
  */
-export const handleImportListPart = async(listData: LX.ConfigFile.MyListInfoPart['data'], position: number = listState.userList.length) => {
+export const handleImportListPart = async (listData: LX.ConfigFile.MyListInfoPart['data'], position: number = listState.userList.length) => {
   const targetList = listState.allList.find(l => l.id === listData.id)
   if (targetList) {
     const confirm = await confirmDialog({
@@ -112,13 +128,13 @@ export const handleImportListPart = async(listData: LX.ConfigFile.MyListInfoPart
   })
 }
 
-const importPlayList = async(path: string) => {
+const importPlayList = async (path: string, merge: boolean = false) => {
   let configData: any
   try {
     if (path === "--") {
       await delWebdavTempFile()
       path = webdavTempPath
-      await downloadLxConfigFileWebDAV()
+      await downloadLxConfigFileWebDAV(merge)
 
       // 导入前先备份一下当前数据
       // 请求权限，将数据保存到download文件夹
@@ -165,7 +181,7 @@ const importPlayList = async(path: string) => {
       break
     case 'playList_v2':
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      await importNewListData(configData.data)
+      await importNewListData(configData.data, merge)
       break
     case 'allData':
       // 兼容0.6.2及以前版本的列表数据
@@ -196,10 +212,10 @@ const importPlayList = async(path: string) => {
   }
 }
 
-export const handleImportList = (path: string) => {
+export const handleImportList = (path: string, merge: boolean = false) => {
   console.log(path)
   toast(global.i18n.t('setting_backup_part_import_list_tip_unzip'))
-  void importPlayList(path).then((skipTip) => {
+  void importPlayList(path, merge).then((skipTip) => {
     if (skipTip) return
     toast(global.i18n.t('setting_backup_part_import_list_tip_success'))
   }).catch((err) => {
@@ -209,7 +225,7 @@ export const handleImportList = (path: string) => {
 }
 
 
-const exportAllList = async(path: string) => {
+const exportAllList = async (path: string, merge: boolean = false) => {
   const data = JSON.parse(JSON.stringify({
     type: 'playList_v2',
     data: await getAllLists(),
@@ -223,7 +239,7 @@ const exportAllList = async(path: string) => {
     }
     await handleSaveFile(path, data)
     if (path === webdavTempPath) {
-      await uploadLxConfigFileWebDAV()
+      await uploadLxConfigFileWebDAV(merge)
       await delWebdavTempFile()
     }
   } catch (error: any) {
@@ -231,9 +247,9 @@ const exportAllList = async(path: string) => {
     throw error
   }
 }
-export const handleExportList = (path: string) => {
+export const handleExportList = (path: string, merge: boolean = false) => {
   toast(global.i18n.t('setting_backup_part_export_list_tip_zip'))
-  void exportAllList(path).then(() => {
+  void exportAllList(path, merge).then(() => {
     toast(global.i18n.t('setting_backup_part_export_list_tip_success'))
   }).catch((err: any) => {
     log.error(err.message)

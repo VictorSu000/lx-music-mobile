@@ -4,14 +4,15 @@ import { temporaryDirectoryPath } from '@/utils/fs'
 
 // TODO 填上URL、用户名密码
 const webdavFileURL = ""
+const webdavMergeFileURL = ""
 const username = ""
 const password = ""
 
 export const webdavTempPath = `${temporaryDirectoryPath}/lx_list_tmp_webdav.lxmc`
 
 
-export const uploadLxConfigFileWebDAV = async () => {
-    const link = webdavFileURL
+export const uploadLxConfigFileWebDAV = async (useMergeFile: boolean = false) => {
+    const link = useMergeFile ? webdavMergeFileURL : webdavFileURL
     const res = await RNFetchBlob.config({
         path: webdavTempPath,
     }).fetch("put", link, {
@@ -24,8 +25,8 @@ export const uploadLxConfigFileWebDAV = async () => {
     }
 }
 
-export const downloadLxConfigFileWebDAV = async () => {
-    let link = webdavFileURL
+export const downloadLxConfigFileWebDAV = async (useMergeFile: boolean = false) => {
+    let link = useMergeFile ? webdavMergeFileURL : webdavFileURL
     const res = await RNFetchBlob.config({
         path: webdavTempPath,
     }).fetch("get", link, {

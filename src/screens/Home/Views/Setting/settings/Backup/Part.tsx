@@ -26,6 +26,14 @@ export default memo(() => {
           <Button onPress={() => importAndExportData('export', 'setting')}>{t('setting_backup_part_export_setting')}</Button> */}
         </View>
       </SubTitle>
+      <SubTitle title='合并歌单'>
+        <View style={styles.list}>
+          <Button onPress={() => handleImportList("--", true)}>从网盘合并歌单</Button>
+          <Button onPress={() => handleExportList("--", true)}>导出需被合并的歌单到网盘</Button>
+          {/* <Button onPress={() => importAndExportData('import', 'setting')}>{t('setting_backup_part_import_setting')}</Button>
+          <Button onPress={() => importAndExportData('export', 'setting')}>{t('setting_backup_part_export_setting')}</Button> */}
+        </View>
+      </SubTitle>
       {/* <SubTitle title={t('setting_backup_all')}>
         <View style={styles.list}>
           <Button onPress={() => importAndExportData('import', 'all')}>{t('setting_backup_all_import')}</Button>
