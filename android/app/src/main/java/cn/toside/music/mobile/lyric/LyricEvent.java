@@ -1,7 +1,5 @@
 package cn.toside.music.mobile.lyric;
 
-import android.util.Log;
-
 import androidx.annotation.Nullable;
 
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -13,12 +11,13 @@ public class LyricEvent {
   final String TOGGLE_PAUSE = "togglePlay";
   final String PLAY_PREV = "playPrev";
   final String PLAY_NEXT = "playNext";
+  final String LYRIC_Line_PLAY = "lyric-line-play";
 
   private final ReactApplicationContext reactContext;
   LyricEvent(ReactApplicationContext reactContext) { this.reactContext = reactContext; }
 
   public void sendEvent(String eventName, @Nullable WritableMap params) {
-    Log.d("Lyric", "senEvent: " + eventName);
+    // Log.d("Lyric", "senEvent: " + eventName);
     reactContext
       .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
       .emit(eventName, params);
