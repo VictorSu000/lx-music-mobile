@@ -221,9 +221,6 @@ public class Lyric extends LyricPlayer {
 
   public void pauseLyric() {
     pause();
-    if (!isShowLyric) return;
-    // 暂停时不清空歌词
-//    if (lyricView != null) lyricView.setLyric(" ", new ArrayList<>(0));
     if (!isRunPlayer) return;
     handleGetCurrentLyric(-1);
   }
