@@ -422,9 +422,11 @@ public class LyricView extends Activity implements View.OnTouchListener {
     windowManager.addView(textView, layoutParams);
     windowManager.addView(controlsView, controlsLayoutParams);
 
-    // Adjust controls position to align with right edge
-    controlsLayoutParams.x = layoutParams.x + layoutParams.width - controlsView.getWidth();
-    windowManager.updateViewLayout(controlsView, controlsLayoutParams);
+    // Adjust controls position to align with right edge (postpone calculation until layout is measured)
+    controlsView.post(() -> {
+      controlsLayoutParams.x = layoutParams.x + layoutParams.width - controlsView.getWidth() - 100;
+      windowManager.updateViewLayout(controlsView, controlsLayoutParams);
+    });
   }
 
   public void setLyric(String text, ArrayList<String> extendedLyrics) {
@@ -510,7 +512,7 @@ public class LyricView extends Activity implements View.OnTouchListener {
         layoutParams.x = x;
         layoutParams.y = y;
         //更新悬浮窗位置
-        controlsLayoutParams.x = x + layoutParams.width - controlsView.getWidth();
+        controlsLayoutParams.x = x + layoutParams.width - controlsView.getWidth() - 100;
         controlsLayoutParams.y = y;
 
         windowManager.updateViewLayout(textView, layoutParams);
