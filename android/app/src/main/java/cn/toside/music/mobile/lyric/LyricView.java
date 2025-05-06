@@ -318,7 +318,7 @@ public class LyricView extends Activity implements View.OnTouchListener {
       playPauseButton.setBackgroundResource(R.drawable.ic_play);
       nextButton.setBackgroundResource(R.drawable.ic_next);
 
-      int buttonSize = 100;
+      int buttonSize = 60;
       LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(buttonSize, buttonSize);
       buttonParams.setMargins(8, 0, 8, 0);
 
@@ -424,7 +424,7 @@ public class LyricView extends Activity implements View.OnTouchListener {
 
     // Adjust controls position to align with right edge (postpone calculation until layout is measured)
     controlsView.post(() -> {
-      controlsLayoutParams.x = layoutParams.x + layoutParams.width - controlsView.getWidth() - 100;
+      controlsLayoutParams.x = layoutParams.x + layoutParams.width - controlsView.getWidth() - 50;
       windowManager.updateViewLayout(controlsView, controlsLayoutParams);
     });
   }
@@ -512,7 +512,7 @@ public class LyricView extends Activity implements View.OnTouchListener {
         layoutParams.x = x;
         layoutParams.y = y;
         //更新悬浮窗位置
-        controlsLayoutParams.x = x + layoutParams.width - controlsView.getWidth() - 100;
+        controlsLayoutParams.x = x + layoutParams.width - controlsView.getWidth() - 50;
         controlsLayoutParams.y = y;
 
         windowManager.updateViewLayout(textView, layoutParams);
